@@ -1,0 +1,13 @@
+#! /bin/bash
+
+pkill mavproxy
+
+if [ -z $1 ]
+then   echo "Usage: mission_execute [seconds]"
+       exit
+fi
+   
+python main.py&
+
+sleep $1
+scripts/motors_kill
