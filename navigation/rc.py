@@ -94,24 +94,41 @@ class RCLib:
 
             start = imu.getDeg(self.master)
             end = start + value
-    
+            offset = 0
+            flag = 0
+            
             if value > 0 :
-    
-                while imu.getDeg(self.master) < end:
-    
+
+                if (end > 360) :
+
+                    offset = 360
+                    
+                while imu.getDeg(self.master) + (offset * flag) < end:
+
+                    if imu.getDeg(self.master) < (start - 5):
+                        flag = 1
+
                     self.yaw_raw(1700)
                     print(imu.getDeg(self.master))
                     
                 self.yaw_raw(1500)
     
             if value < 0 :
-    
-                while imu.getDeg(self.master) > end:
-    
-                    self.yaw_raw(1300)
+
+                if (end < 0) :
+
+                    offset = -360
+
+                while imu.getDeg(self.master) + (offset * flag) > end:
+
+                    if imu.getDeg(self.master) > (start + 5):
+                        flag = 1
+
+                    self.yaw_raw(1700)
                     print(imu.getDeg(self.master))
-                    
+
                 self.yaw_raw(1500)
+                
     
     def killall (self) :
     

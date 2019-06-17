@@ -8,4 +8,4 @@ rc = RCLib()
 rc.setmode('MANUAL')
 
 rc.arm()
-rc.yaw("imu", 10, 1) 
+rc.yaw("imu", -20, 1) 
