@@ -67,16 +67,36 @@ class RCLib:
     
         self.master.arducopter_arm()
         
-    
-    def forward (self, value) :
+    def throttle (self, unit, value, power) :
+	
+	pwm = 1500 + (400 * power)
+	
+	if unit == "time" :
+
+	    runtime = time.time() + value
+	    while runtime > time.time() :
+	        self.throttle_raw(pwm)
+            self.throttle_raw(1500)
+
+		
+    def forward (self, unit, value, power) :
         
-        runtime = time.time() + value
-        while runtime > time.time() :
-            self.forward_raw()
-            print(runtime - time.time())
+	if unit == "time" :
+            
+	    self.setmode('ALT_HOLD')
+	    pwm = 1500 + (400 * power)
+	    runtime = time.time() + value
+            while runtime > time.time() :
+                self.forward_raw(pwm)
+                print(runtime - time.time())
     
-        self.forward_raw(1500)
+            self.forward_raw(1500)
+    	    self.setmode('MANUAL')
     
+    def deg (self) :
+
+        print(imu.getDeg(self.master)) 
+
     def yaw (self, unit, value, power) :
     
         pwm = 1500 + (400 * power)
@@ -91,7 +111,8 @@ class RCLib:
             self.yaw_raw(1500)
     
         if unit == "imu" :
-
+	    
+	    print(imu.getDeg(self.master))
             start = imu.getDeg(self.master)
             end = start + value
             offset = 0
@@ -128,7 +149,20 @@ class RCLib:
                     print(imu.getDeg(self.master))
 
                 self.yaw_raw(1500)
-                
+    
+    def lateral (self, unit, value, power) :
+
+        if unit == "time" :
+
+            self.setmode('ALT_HOLD')
+            pwm = 1500 + (400 * power)
+            runtime = time.time() + value
+            while runtime > time.time() :
+                self.lateral_raw(pwm)
+                print(runtime - time.time())
+
+            self.lateral_raw(1500)
+            self.setmode('MANUAL')
     
     def killall (self) :
     
