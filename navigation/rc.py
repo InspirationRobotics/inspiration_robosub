@@ -8,12 +8,14 @@ from pymavlink import mavutil
 class RCLib:
 
     def __init__(self):
-        
-        self.master = mavutil.mavlink_connection(
+        try: 
+            self.master = mavutil.mavlink_connection(
                 '/dev/ttyACM0',
                 baud=115200)
 
-        self.master.wait_heartbeat()
+            self.master.wait_heartbeat()
+        except:
+            print('Exception in connect')
         
     # Create a function to send RC values
     # More information about Joystick channels
@@ -78,8 +80,7 @@ class RCLib:
 	        self.throttle_raw(pwm)
             self.throttle_raw(1500)
 
-		
-    def forward (self, unit, value, power) :
+    def forwardAngle (self, unit, value, power, angle) :
         
 	if unit == "time" :
             
@@ -92,17 +93,34 @@ class RCLib:
     
             self.forward_raw(1500)
     	    self.setmode('MANUAL')
+ 
+		
+    def forward (self, unit, value, power) :
+        
+	if unit == "time" :
+            
+	    self.setmode('ALT_HOLD')
+	    pwm = 1500 + (400 * power)
+	    runtime = time.time() + value
+            while runtime > time.time() :
+                self.forward_raw(pwm)
+                print(runtime - time.time())
+
+            self.forward_raw(1500)
+    	    self.setmode('MANUAL')
     
     def deg (self) :
 
         print(imu.getDeg(self.master)) 
 
     def yaw (self, unit, value, power) :
+
+        power = power * (value/abs(value))
     
         pwm = 1500 + (400 * power)
     
         if unit == "time" :
-    
+   
             runtime = time.time() + value
             while runtime > time.time() :
     
@@ -111,9 +129,10 @@ class RCLib:
             self.yaw_raw(1500)
     
         if unit == "imu" :
-	    
-	    print(imu.getDeg(self.master))
+
             start = imu.getDeg(self.master)
+            print('start angle: %s' % start)
+
             end = start + value
             offset = 0
             flag = 0
@@ -124,14 +143,18 @@ class RCLib:
 
                     offset = 360
                     
+                self.yaw_raw(pwm)
                 while imu.getDeg(self.master) + (offset * flag) < end:
+                    #print('Loop 1')
+                    pwm = 1500 + (end - (imu.getDeg(self.master) + (offset * flag)))*0.5 + 100
+                    print ('pwm = %d') % pwm
 
-                    if imu.getDeg(self.master) < (start - 5):
+                    if imu.getDeg(self.master) < (start - 10):
                         flag = 1
 
-                    self.yaw_raw(1700)
-                    print(imu.getDeg(self.master))
-                    
+                    self.yaw_raw(pwm)
+                    #print(imu.getDeg(self.master))
+                    #print(time.time())
                 self.yaw_raw(1500)
     
             if value < 0 :
@@ -140,16 +163,37 @@ class RCLib:
 
                     offset = -360
 
+                self.yaw_raw(pwm)
                 while imu.getDeg(self.master) + (offset * flag) > end:
 
-                    if imu.getDeg(self.master) > (start + 5):
+                    pwm = 1500 - ((imu.getDeg(self.master) + (offset * flag)) - end)*0.5 - 100
+
+                    if imu.getDeg(self.master) > (start + 10):
                         flag = 1
 
-                    self.yaw_raw(1700)
-                    print(imu.getDeg(self.master))
+                    self.yaw_raw(pwm)
+                    #print(imu.getDeg(self.master))
 
                 self.yaw_raw(1500)
-    
+
+            #print('before delay')
+	    #print(imu.getDeg(self.master))
+            #r = time.time() + 20
+	    #while (r > time.time()):
+		#print(imu.getDeg(self.master)) 
+
+            #time.sleep(10) 
+	    #print('after delay')
+	    #print(imu.getDeg(self.master))
+            
+            print('Expected End angle: %s' % end)
+            print('Actual End angle: %s' % imu.getDeg(self.master))
+
+        def getDeg (self) :
+                r = imu.getDeg(self.master)
+                print(r)
+                return imu.getDeg(self.master) 
+                  
     def lateral (self, unit, value, power) :
 
         if unit == "time" :
