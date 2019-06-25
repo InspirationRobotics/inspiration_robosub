@@ -9,29 +9,25 @@ class RCLib:
 
     def __init__(self):
         try: 
+
             self.master = mavutil.mavlink_connection(
                 '/dev/ttyACM0',
                 baud=115200)
 
             self.master.wait_heartbeat()
+
         except:
+
             print('Exception in connect')
         
-    # Create a function to send RC values
-    # More information about Joystick channels
-    # here: https://www.ardusub.com/operators-manual/rc-input-and-output.html#rc-inputs
+    # This function is responsible for sending RC channel overrides
     def set_rc_channel_pwm(self, id, pwm=1500):
-        """ Set RC channel pwm value
-        Args:
-            id (TYPE): Channel ID
-            pwm (int, optional): Channel pwm value 1100-1900
-        """
+        
         if id < 1:
             print("Channel does not exist.")
             return
     
-        # We only have 8 channels
-        #http://mavlink.org/messages/common#RC_CHANNELS_OVERRIDE
+        # https://mavlink.io/en/messages/common.html#RC_CHANNELS_OVERRIDE
         if id < 9:
             
             rc_channel_values = [65535 for _ in range(8)]
@@ -40,7 +36,33 @@ class RCLib:
                 self.master.target_system,                # target_system
                 self.master.target_component,             # target_component
                 *rc_channel_values)
-    
+
+    def raw (self, id, pwm=1900) :
+
+        if (id == "pitch") :
+
+            self.set_rc_channel_pwm(1, pwm)
+            
+        if (id == "roll") :
+
+            self.set_rc_channel_pwm(1, pwm)
+
+        if (id == "throttle") :
+
+            self.set_rc_channel_pwm(1, pwm)
+
+        if (id == "yaw") :
+
+            self.set_rc_channel_pwm(1, pwm)
+
+        if (id == "forward") :
+
+            self.set_rc_channel_pwm(1, pwm)
+
+        if (id == "lateral") :
+
+            self.set_rc_channel_pwm(1, pwm)
+            
     def pitch_raw (self, pwm=1900) :
         
         self.set_rc_channel_pwm(1, pwm)
@@ -189,10 +211,10 @@ class RCLib:
             print('Expected End angle: %s' % end)
             print('Actual End angle: %s' % imu.getDeg(self.master))
 
-        def getDeg (self) :
-                r = imu.getDeg(self.master)
-                print(r)
-                return imu.getDeg(self.master) 
+    def getDeg (self) :
+        r = imu.getDeg(self.master)
+        print(r)
+        return imu.getDeg(self.master) 
                   
     def lateral (self, unit, value, power) :
 

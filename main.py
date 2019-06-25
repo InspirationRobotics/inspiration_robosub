@@ -9,7 +9,7 @@ rc.setmode('MANUAL')
 
 rc.arm()
 
-rc.yaw("imu", 20, 1)
+rc.getDeg()
 #rc.throttle("time", 4, -0.25)
 #rc.forward("time", 15, 0.25)
 #rc.lateral("time", 2, 0.25)
