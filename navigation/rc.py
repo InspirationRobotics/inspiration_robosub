@@ -45,23 +45,23 @@ class RCLib:
             
         if (id == "roll") :
 
-            self.set_rc_channel_pwm(1, pwm)
+            self.set_rc_channel_pwm(2, pwm)
 
         if (id == "throttle") :
 
-            self.set_rc_channel_pwm(1, pwm)
+            self.set_rc_channel_pwm(3, pwm)
 
         if (id == "yaw") :
 
-            self.set_rc_channel_pwm(1, pwm)
+            self.set_rc_channel_pwm(4, pwm)
 
         if (id == "forward") :
 
-            self.set_rc_channel_pwm(1, pwm)
+            self.set_rc_channel_pwm(5, pwm)
 
         if (id == "lateral") :
 
-            self.set_rc_channel_pwm(1, pwm)
+            self.set_rc_channel_pwm(6, pwm)
             
     def arm (self) :
     
