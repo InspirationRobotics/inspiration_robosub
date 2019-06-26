@@ -16,9 +16,9 @@ class RCLib:
 
             self.master.wait_heartbeat()
 
-        except:
+        except Exception as e:
 
-            print('Exception in connect')
+            print(e)
         
     # This function is responsible for sending RC channel overrides
     def set_rc_channel_pwm(self, id, pwm=1500):
@@ -63,30 +63,6 @@ class RCLib:
 
             self.set_rc_channel_pwm(1, pwm)
             
-    def pitch_raw (self, pwm=1900) :
-        
-        self.set_rc_channel_pwm(1, pwm)
-    
-    def roll_raw (self, pwm=1900) :
-        
-        self.set_rc_channel_pwm(2, pwm)
-    
-    def throttle_raw (self, pwm=1900) :
-    
-        self.set_rc_channel_pwm(3, pwm)
-    
-    def yaw_raw (self, pwm=1900) :
-    
-        self.set_rc_channel_pwm(4, pwm)
-    
-    def forward_raw (self, pwm=1900) :
-    
-        self.set_rc_channel_pwm(5, pwm)
-    
-    def lateral_raw (self, pwm=1900) :
-    
-        self.set_rc_channel_pwm(6, pwm)
-    
     def arm (self) :
     
         self.master.arducopter_arm()
@@ -99,8 +75,8 @@ class RCLib:
 
 	    runtime = time.time() + value
 	    while runtime > time.time() :
-	        self.throttle_raw(pwm)
-            self.throttle_raw(1500)
+	        self.raw("throttle", pwm)
+            self.raw("throttle", 1500)
 
     def forwardAngle (self, unit, value, power, angle) :
         
@@ -110,10 +86,10 @@ class RCLib:
 	    pwm = 1500 + (400 * power)
 	    runtime = time.time() + value
             while runtime > time.time() :
-                self.forward_raw(pwm)
+                self.raw("forward", pwm)
                 print(runtime - time.time())
     
-            self.forward_raw(1500)
+            self.raw("forward", 1500)
     	    self.setmode('MANUAL')
  
 		
@@ -125,10 +101,10 @@ class RCLib:
 	    pwm = 1500 + (400 * power)
 	    runtime = time.time() + value
             while runtime > time.time() :
-                self.forward_raw(pwm)
+                self.raw("forward", pwm)
                 print(runtime - time.time())
 
-            self.forward_raw(1500)
+            self.raw("forward", 1500)
     	    self.setmode('MANUAL')
     
     def deg (self) :
@@ -146,9 +122,9 @@ class RCLib:
             runtime = time.time() + value
             while runtime > time.time() :
     
-                self.yaw_raw(pwm)
+                self.raw("yaw", pwm)
     
-            self.yaw_raw(1500)
+            self.raw("yaw", 1500)
     
         if unit == "imu" :
 
@@ -165,7 +141,7 @@ class RCLib:
 
                     offset = 360
                     
-                self.yaw_raw(pwm)
+                self.raw("yaw", pwm)
                 while imu.getDeg(self.master) + (offset * flag) < end:
                     #print('Loop 1')
                     pwm = 1500 + (end - (imu.getDeg(self.master) + (offset * flag)))*0.5 + 100
@@ -174,10 +150,10 @@ class RCLib:
                     if imu.getDeg(self.master) < (start - 10):
                         flag = 1
 
-                    self.yaw_raw(pwm)
+                    self.raw("yaw", pwm)
                     #print(imu.getDeg(self.master))
                     #print(time.time())
-                self.yaw_raw(1500)
+                self.raw("yaw", 1500)
     
             if value < 0 :
 
@@ -185,7 +161,7 @@ class RCLib:
 
                     offset = -360
 
-                self.yaw_raw(pwm)
+                self.raw("yaw", pwm)
                 while imu.getDeg(self.master) + (offset * flag) > end:
 
                     pwm = 1500 - ((imu.getDeg(self.master) + (offset * flag)) - end)*0.5 - 100
@@ -193,10 +169,10 @@ class RCLib:
                     if imu.getDeg(self.master) > (start + 10):
                         flag = 1
 
-                    self.yaw_raw(pwm)
+                    self.raw("yaw", pwm)
                     #print(imu.getDeg(self.master))
 
-                self.yaw_raw(1500)
+                self.raw("yaw", 1500)
 
             #print('before delay')
 	    #print(imu.getDeg(self.master))
@@ -224,10 +200,11 @@ class RCLib:
             pwm = 1500 + (400 * power)
             runtime = time.time() + value
             while runtime > time.time() :
-                self.lateral_raw(pwm)
+
+                self.raw("lateral", pwm)
                 print(runtime - time.time())
 
-            self.lateral_raw(1500)
+            self.raw("lateral", 1500)
             self.setmode('MANUAL')
     
     def killall (self) :
