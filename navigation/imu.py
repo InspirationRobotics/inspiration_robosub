@@ -20,3 +20,15 @@ def getDeg(master) :
 
         except:
             pass
+
+
+def getAllData(master) :
+    while True:
+        try:
+
+            att_val = master.recv_match(type='ATTITUDE').to_dict()
+
+            return att_val
+
+        except:
+            pass

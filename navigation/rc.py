@@ -2,6 +2,7 @@
 import time
 import imu
 from pymavlink import mavutil
+import math
 
 # Create the connection
 
@@ -225,3 +226,52 @@ class RCLib:
                 mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,
                 mode_id)
         
+    def imu_turn (self, angle):
+
+        TURN_THRESHOLD = 1.5
+        self.setmode('ALT_HOLD')
+        #error = angle - self.getDeg()
+
+        print(self.getDeg())
+        print("target = ", angle)
+        
+        while (abs(self.getError(angle)) > TURN_THRESHOLD):
+            
+            pwm = self.getSteer(self.getError(angle))
+            print('speed: ', pwm)
+            self.raw('yaw', pwm)
+            
+        self.raw('yaw', 1500)
+
+                
+    def getError(self, angle):
+        error = angle - self.getDeg()
+        return error
+
+    def getSteer (self, error):
+        kP = 0.02
+        end_speed = abs(kP*error)
+        #final_speed = np.clip(end_speed, 0.1, 1)
+        #converted_speed = 1500 + (end_speed*400)
+        if (end_speed > 1):
+            final_speed = 1
+        elif (end_speed < 0.05):
+            final_speed = 0.05
+        else:
+            final_speed = end_speed
+
+
+        if (error > 0):
+            #turn right
+            return_speed = 1500 + (400*final_speed)
+        else:
+            return_speed = 1500 - (400*final_speed)
+            
+            
+        return return_speed
+
+    def move_dist(self, distance_in, speed):
+        DISTANCE_CONSTANT = 47.16981
+        time = (distance_in)/(speed*DISTANCE_CONSTANT)
+
+        self.forward('time', time, speed)
