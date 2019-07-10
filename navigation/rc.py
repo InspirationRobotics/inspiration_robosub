@@ -228,7 +228,8 @@ class RCLib:
         
     def imu_turn (self, angle):
 
-        TURN_THRESHOLD = 1.5
+        #TURN_THRESHOLD = 3
+        TURN_THRESHOLD = 3
         self.setmode('ALT_HOLD')
         #error = angle - self.getDeg()
 
@@ -249,14 +250,15 @@ class RCLib:
         return error
 
     def getSteer (self, error):
-        kP = 0.02
+        kP = 0.015
+        #kP = 0.05
         end_speed = abs(kP*error)
         #final_speed = np.clip(end_speed, 0.1, 1)
         #converted_speed = 1500 + (end_speed*400)
-        if (end_speed > 1):
-            final_speed = 1
-        elif (end_speed < 0.05):
-            final_speed = 0.05
+        if (end_speed > 0.25):
+            final_speed = 0.25
+        elif (end_speed < 0.08):
+            final_speed = 0.08
         else:
             final_speed = end_speed
 
@@ -271,7 +273,7 @@ class RCLib:
         return return_speed
 
     def move_dist(self, distance_in, speed):
-        DISTANCE_CONSTANT = 47.16981
+        DISTANCE_CONSTANT = 48.181818
         time = (distance_in)/(speed*DISTANCE_CONSTANT)
 
         self.forward('time', time, speed)

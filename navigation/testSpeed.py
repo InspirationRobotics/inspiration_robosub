@@ -7,9 +7,7 @@ rc.arm()
 
 rc.throttle('time', 4, -0.25)
 
-rc.imu_turn(71.5)
+rc.imu_turn(63)
 
-SPEED = 0.75
-
-rc.forward('time', 9, SPEED)
+rc.move_dist(265, 0.5)
 
