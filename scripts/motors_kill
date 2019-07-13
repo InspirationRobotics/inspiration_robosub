@@ -1,4 +1,3 @@
 #! /bin/bash
 
-pkill -f main.py
 python scripts/stop.py

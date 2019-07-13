@@ -9,8 +9,21 @@ rc.setmode('MANUAL')
 
 rc.arm()
 
-rc.forward("time", 6, 0.25)
-rc.yaw("time", 1.2, -0.25)
-rc.forward("time", 3, 0.25)
-rc.yaw("time", 1.2, -0.25)
-rc.forward("time", 6, 0.25)
+print(rc.getDeg())
+
+#time.sleep(2)
+#rc.forward("time", 6, 0.25)
+#rc.yaw("time", 1.2, -0.25)
+#rc.forward("time", 3, 0.25)
+#rc.yaw("time", 1.2, -0.25)
+#rc.forward("time", 6, 0.25)
+rc.throttle("time", 3, -0.25)
+
+rc.setmode('ALT_HOLD')
+rc.yaw("imu", 90, 0.1375)
+rc.yaw("time", 2, 0)
+
+
+#rc.imu_turn(121.5)
+
+#rc.yaw('imu', 90, 0.25)

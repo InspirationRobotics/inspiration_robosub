@@ -91,7 +91,7 @@ class RCLib:
                 print(runtime - time.time())
     
             self.raw("forward", 1500)
-    	    self.setmode('MANUAL')
+    	    #self.setmode('MANUAL')
  
 		
     def forward (self, unit, value, power) :
@@ -106,7 +106,7 @@ class RCLib:
                 print(runtime - time.time())
 
             self.raw("forward", 1500)
-    	    self.setmode('MANUAL')
+    	    #self.setmode('MANUAL')
     
     def deg (self) :
 
@@ -206,7 +206,7 @@ class RCLib:
                 print(runtime - time.time())
 
             self.raw("lateral", 1500)
-            self.setmode('MANUAL')
+            #self.setmode('MANUAL')
     
     def killall (self) :
     
@@ -226,12 +226,24 @@ class RCLib:
                 mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,
                 mode_id)
         
+    def angleWrap (self, angle) :
+        
+        if angle > 360 :
+            angle = angle % 360
+
+        if angle < 0 :
+            angle = angle + 360
+
+        return angle
+
     def imu_turn (self, angle):
 
-        TURN_THRESHOLD = 1.5
+        #TURN_THRESHOLD = 3
+        TURN_THRESHOLD = 3
         self.setmode('ALT_HOLD')
         #error = angle - self.getDeg()
-
+        angle = self.angleWrap(angle)
+        
         print(self.getDeg())
         print("target = ", angle)
         
@@ -249,14 +261,15 @@ class RCLib:
         return error
 
     def getSteer (self, error):
-        kP = 0.02
+        kP = 0.003
+        #kP = 0.05
         end_speed = abs(kP*error)
         #final_speed = np.clip(end_speed, 0.1, 1)
         #converted_speed = 1500 + (end_speed*400)
-        if (end_speed > 1):
-            final_speed = 1
-        elif (end_speed < 0.05):
-            final_speed = 0.05
+        if (end_speed > 0.35):
+            final_speed = 0.35
+        elif (end_speed < 0.1375):
+            final_speed = 0.1375
         else:
             final_speed = end_speed
 
@@ -271,7 +284,7 @@ class RCLib:
         return return_speed
 
     def move_dist(self, distance_in, speed):
-        DISTANCE_CONSTANT = 47.16981
+        DISTANCE_CONSTANT = 48.181818
         time = (distance_in)/(speed*DISTANCE_CONSTANT)
 
         self.forward('time', time, speed)
