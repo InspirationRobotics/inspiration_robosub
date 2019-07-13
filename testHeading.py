@@ -5,11 +5,12 @@ import navigation.imu as imu
 
 rc = RCLib()
 
-rc.setmode('ALT_HOLD')
+rc.setmode('MANUAL')
 
 rc.arm()
 
-print 'Throttle'
-rc.throttle("time", 3, -0.20)
+while(1):
+  print(rc.getDeg())
 
+rc.close()
 
