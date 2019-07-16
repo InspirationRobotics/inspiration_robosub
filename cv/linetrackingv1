@@ -1,0 +1,106 @@
+# import the necessary packages
+import numpy as np
+import cv2
+import imutils
+import argparse
+
+# construct the argument parse and parse the arguments
+ap = argparse.ArgumentParser()
+ap.add_argument("-i", "--image", help = "path to the image")
+args = vars(ap.parse_args())
+
+image = cv2.imread(args["image"])
+
+#image = cv2.imread('mask4.png')
+
+height = np.size(image, 0)
+width = np.size(image, 1)
+
+#convert images to grayscale
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+gray = cv2.GaussianBlur(gray, (5,5), 0)
+#cv2.imshow("Gray", gray)
+#cv2.waitKey(0)
+
+
+mask = gray.copy()
+kernel = np.ones((5,5),np.uint8)
+eroded = cv2.erode(mask, kernel, iterations=4)
+#cv2.imshow("eroded", eroded)
+#cv2.waitKey(0)
+
+#Erosions and dilations
+#erosions are apploed to reduce the size of foreground objects
+mask = gray.copy()
+kernel = np.ones((5,5),np.uint8)
+dilated = cv2.dilate(eroded, kernel, iterations=3)
+#cv2.imshow("dilated", dilated)
+#cv2.waitKey(0)
+
+#cv.Mat vesselImage = cv.imread(mask)
+
+
+#edge detection
+#applying edge detection 
+edged = cv2.Canny(dilated, 30,150)
+#cv2.imshow("Edged", edged)
+#cv2.waitKey(0)
+
+
+
+# Malisiewicz et al.
+def non_max_suppression_fast(boxes, overlapThresh):
+	# if there are no boxes, return an empty list
+	if len(boxes) == 0:
+		return []
+
+	# if the bounding boxes integers, convert them to floats --
+	# this is important since we'll be doing a bunch of divisions
+	if boxes.dtype.kind == "i":
+		boxes = boxes.astype("float")
+
+	# initialize the list of picked indexes	
+	pick = []
+
+	# grab the coordinates of the bounding boxes
+	x1 = boxes[:,0]
+	y1 = boxes[:,1]
+	x2 = boxes[:,2]
+	y2 = boxes[:,3]
+
+	# compute the area of the bounding boxes and sort the bounding
+	# boxes by the bottom-right y-coordinate of the bounding box
+	area = (x2 - x1 + 1) * (y2 - y1 + 1)
+	idxs = np.argsort(y2)
+
+	# keep looping while some indexes still remain in the indexes
+	# list
+	while len(idxs) > 0:
+		# grab the last index in the indexes list and add the
+		# index value to the list of picked indexes
+		last = len(idxs) - 1
+		i = idxs[last]
+		pick.append(i)
+
+		# find the largest (x, y) coordinates for the start of
+		# the bounding box and the smallest (x, y) coordinates
+		# for the end of the bounding box
+		xx1 = np.maximum(x1[i], x1[idxs[:last]])
+		yy1 = np.maximum(y1[i], y1[idxs[:last]])
+		xx2 = np.minimum(x2[i], x2[idxs[:last]])
+		yy2 = np.minimum(y2[i], y2[idxs[:last]])
+
+		# compute the width and height of the bounding box
+		w = np.maximum(0, xx2 - xx1 + 1)
+		h = np.maximum(0, yy2 - yy1 + 1)
+
+		# compute the ratio of overlap
+		overlap = (w * h) / area[idxs[:last]]
+
+		# delete all indexes from the index list that have
+		idxs = np.delete(idxs, np.concatenate(([last],
+			np.where(overlap > overlapThresh)[0])))
+
+	# return only the bounding boxes that were picked using the
+	# integer data type
+	return boxes[pick].astype("int")
