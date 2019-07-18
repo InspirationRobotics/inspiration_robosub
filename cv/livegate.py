@@ -4,13 +4,16 @@ import numpy as np
 import cv2
 import imutils
 
-cap = cv2.VideoCapture(-1)
+cap = cv2.VideoCapture(0)
 
 while(True):
 	ret, frame = cap.read()
 
+	#crop_img = frame[60:120, 0:160]
+
 	height = np.size(frame)
 	width = np.size(frame)
+
 
 	cap_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
@@ -70,7 +73,7 @@ while(True):
 	cnts, heirarchy = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL,
 		cv2.CHAIN_APPROX_SIMPLE)
 	#cv2.drawContours(immat,contours,-1,CV_RGB(255,0,0),2);
-	#cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:4]
+	cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:2]
 
 	print('cnts:')
 	print(cnts)
@@ -81,11 +84,11 @@ while(True):
 	#output = image.copy()
 
 	#loop over the contours
-	for c in grabbedcnts:
+	'''for c in grabbedcnts:
 			#draw wach contour on the output image with a 3px thick purple
 			#outline, then display the output contours one at a time
 			cv2.drawContours(output, [c], -1, (0,255,0),1)
-			cv2.imshow("Contours", output)
+			cv2.imshow("Contours", output)'''
 	#cnts = cnts[0]50
 	M = cv2.moments(cnts[0])
 	print (M)
@@ -139,7 +142,7 @@ while(True):
 	print(boundingBoxes)
 	 
 	# perform non-maximum suppression on the bounding boxes
-	pick = non_max_suppression_fast(boundingBoxes, 0.8)
+	pick = non_max_suppression_fast(boundingBoxes, 0.1)
 	print ("[x] after applying non-maximum, %d bounding boxes" % (len(pick)))
 
 	# loop over the picked bounding boxes and draw them
@@ -149,7 +152,7 @@ while(True):
 	# display the images
 	#cv2.imshow("Original", orig)
 	cv2.imshow("After NMS", frame)
-	cv2.waitKey(0)
+	#cv2.waitKey(0)
 
 	if cv2.waitKey(1) & 0xFF == ord('q'):
 		break

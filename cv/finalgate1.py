@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 import imutils
 
-cap = cv2.VideoCapture('2papers.mov')
+cap = cv2.VideoCapture('underwaterpaper.mp4')
 
 while(cap.isOpened()):
 	ret, frame = cap.read()
