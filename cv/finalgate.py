@@ -66,7 +66,7 @@ while(cap.isOpened()):
 
 	#detecting and drawing countours
 	#find contours(outlines) of the foreground objects in the thresholded image
-	cnts, heirarchy = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL,
+	cnts, heirarchy, _ = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL,
 		cv2.CHAIN_APPROX_SIMPLE)
 	#cv2.drawContours(immat,contours,-1,CV_RGB(255,0,0),2);
 	cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:3]
