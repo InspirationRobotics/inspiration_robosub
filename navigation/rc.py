@@ -2,6 +2,8 @@
 import time
 import imu
 from pymavlink import mavutil
+import math
+from ac import *
 
 # Create the connection
 
@@ -16,8 +18,9 @@ class RCLib:
 
             self.master.wait_heartbeat()
 
-        except Exception as e:
+            self.ac = ACLib()
 
+        except Exception as e:
             print(e)
         
     # This function is responsible for sending RC channel overrides
@@ -38,6 +41,7 @@ class RCLib:
                 *rc_channel_values)
 
     def raw (self, id, pwm=1900) :
+      try:
 
         if (id == "pitch") :
 
@@ -62,6 +66,10 @@ class RCLib:
         if (id == "lateral") :
 
             self.set_rc_channel_pwm(6, pwm)
+      except:
+        print ('exception in raw')
+        raise
+
             
     def arm (self) :
     
@@ -90,7 +98,7 @@ class RCLib:
                 print(runtime - time.time())
     
             self.raw("forward", 1500)
-    	    self.setmode('MANUAL')
+    	    #self.setmode('MANUAL')
  
 		
     def forward (self, unit, value, power) :
@@ -102,23 +110,23 @@ class RCLib:
 	    runtime = time.time() + value
             while runtime > time.time() :
                 self.raw("forward", pwm)
-                print(runtime - time.time())
+                #print(runtime - time.time())
 
             self.raw("forward", 1500)
-    	    self.setmode('MANUAL')
+    	    #self.setmode('MANUAL')
     
     def deg (self) :
 
         print(imu.getDeg(self.master)) 
 
-    def yaw (self, unit, value, power) :
+    def yaw (self, unit, value, power=None) :
 
         power = power * (value/abs(value))
     
-        pwm = 1500 + (400 * power)
     
         if unit == "time" :
    
+            pwm = 1500 + (400 * power)
             runtime = time.time() + value
             while runtime > time.time() :
     
@@ -141,11 +149,15 @@ class RCLib:
 
                     offset = 360
                     
-                self.raw("yaw", pwm)
+                #self.raw("yaw", pwm)
                 while imu.getDeg(self.master) + (offset * flag) < end:
                     #print('Loop 1')
-                    pwm = 1500 + (end - (imu.getDeg(self.master) + (offset * flag)))*0.5 + 100
-                    print ('pwm = %d') % pwm
+                    if power == None:
+                        pwm = 1500 + (end - (imu.getDeg(self.master) + (offset * flag)))*0.5 + 55
+                    else :
+                        pwm = 1500 + (400 * power)
+
+                    #print ('pwm = %d') % pwm
 
                     if imu.getDeg(self.master) < (start - 10):
                         flag = 1
@@ -161,10 +173,13 @@ class RCLib:
 
                     offset = -360
 
-                self.raw("yaw", pwm)
+                #self.raw("yaw", pwm)
                 while imu.getDeg(self.master) + (offset * flag) > end:
 
-                    pwm = 1500 - ((imu.getDeg(self.master) + (offset * flag)) - end)*0.5 - 100
+                    if power == None:
+                        pwm = 1500 - ((imu.getDeg(self.master) + (offset * flag)) - end)*0.5 - 55
+                    else :
+                        pwm = 1500 + (400 * power)
 
                     if imu.getDeg(self.master) > (start + 10):
                         flag = 1
@@ -189,12 +204,16 @@ class RCLib:
 
     def getDeg (self) :
         r = imu.getDeg(self.master)
-        print(r)
+        #print(r)
         return imu.getDeg(self.master) 
                   
     def lateral (self, unit, value, power) :
 
         if unit == "time" :
+
+            if value < 0:
+                power = power * -1
+                value = value * -1
 
             self.setmode('ALT_HOLD')
             pwm = 1500 + (400 * power)
@@ -202,11 +221,18 @@ class RCLib:
             while runtime > time.time() :
 
                 self.raw("lateral", pwm)
-                print(runtime - time.time())
+                #print(runtime - time.time())
 
             self.raw("lateral", 1500)
-            self.setmode('MANUAL')
-    
+            #self.setmode('MANUAL')
+   
+    def lateralDist (self, value ) :
+            time = value/200
+            self.lateral("time", time, 0.2)
+
+    def close (self) :
+        self.master.close()
+
     def killall (self) :
     
         self.set_rc_channel_pwm(1, 1500)
@@ -225,3 +251,65 @@ class RCLib:
                 mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,
                 mode_id)
         
+    def angleWrap (self, angle) :
+        
+        if angle > 360 :
+            angle = angle % 360
+
+        if angle < 0 :
+            angle = angle + 360
+
+        return angle
+
+    def imu_turn (self, angle):
+
+        #TURN_THRESHOLD = 3
+        TURN_THRESHOLD = 3
+        self.setmode('ALT_HOLD')
+        #error = angle - self.getDeg()
+        angle = self.angleWrap(angle)
+        
+        print(self.getDeg())
+        print("target = ", angle)
+        
+        while (abs(self.getError(angle)) > TURN_THRESHOLD):
+            
+            pwm = self.getSteer(self.getError(angle))
+            #print('speed: ', pwm)
+            self.raw('yaw', pwm)
+            
+        self.raw('yaw', 1500)
+
+                
+    def getError(self, angle):
+        error = angle - self.getDeg()
+        return error
+
+    def getSteer (self, error):
+        kP = 0.003
+        #kP = 0.05
+        end_speed = abs(kP*error)
+        #final_speed = np.clip(end_speed, 0.1, 1)
+        #converted_speed = 1500 + (end_speed*400)
+        if (end_speed > 0.35):
+            final_speed = 0.35
+        elif (end_speed < 0.1375):
+            final_speed = 0.1375
+        else:
+            final_speed = end_speed
+
+
+        if (error > 0):
+            #turn right
+            return_speed = 1500 + (400*final_speed)
+        else:
+            return_speed = 1500 - (400*final_speed)
+            
+            
+        return return_speed
+
+    def move_dist(self, distance_in, speed):
+        DISTANCE_CONSTANT = 48.181818
+        time = (distance_in)/(speed*DISTANCE_CONSTANT)
+
+        self.forward('time', time, speed)

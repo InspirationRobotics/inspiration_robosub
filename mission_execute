@@ -7,7 +7,9 @@ then   echo "Usage: mission_execute [seconds]"
        exit
 fi
    
-python main.py&
+#python $2 | tee log &
+python $2  &
 
 sleep $1
+pkill -f $2
 scripts/motors_kill
