@@ -19,6 +19,8 @@ class CVThread (threading.Thread):
     height = int(cap.get(4))
     print 'h' + ' ' + str(height) + ' ' + 'w' + ' ' + str(width)
 
+    cycle = 0
+    center_vals = []
     while(cap.isOpened() and (self._active == 1)):
             
     	ret, frame = cap.read()
@@ -26,8 +28,8 @@ class CVThread (threading.Thread):
     	cap_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     	# lower mask (0-10)
-    	lower_red = np.array([0,40,40])
-    	upper_red = np.array([55,255,255])
+    	lower_red = np.array([15,40,40])
+    	upper_red = np.array([40,255,255])
     	mask0 = cv2.inRange(cap_hsv, lower_red, upper_red)
     	# upper mask (170-180)
     	lower_red = np.array([140,0,0])
@@ -70,7 +72,9 @@ class CVThread (threading.Thread):
     	for c in cnts:
     		x,y,w,h = cv2.boundingRect(c)
     		cv2.rectangle(frame,(x,y), (x+w, y+h), (0,255,0), 2)
-    		#cv2.imshow("bounding rectangle",frame)
+    		cv2.imshow("bounding rectangle",frame)
+                cv2.waitKey(0)
+                
                 if i == 0: 
                   x1 = (x + w/2 )
                   y1 = (y + h/2 )
@@ -79,7 +83,21 @@ class CVThread (threading.Thread):
                   x2 = (x + w/2 )
                   y2 = (y + h/2 )
 
-        print str(((x1 + x2) /2) - (width / 2) )
+        center = str(((x1 + x2) /2) - (width / 2) )
+        center_vals.append(center)
+        print center
+        print center_vals
+        cycle = cycle + 1
+
+        if cycle > 10 :
+            sum_vals = 1
+            for x in center_vals :
+                sum_vals = sum_vals + int(x, 10)
+            print(sum_vals/len(center_vals))
+
+            center_vals = []
+            cycle = 0
+            
         time.sleep(0.1)
                 
     cap.release()

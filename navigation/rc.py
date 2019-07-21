@@ -10,7 +10,7 @@ from log import *
 
 class RCLib:
 
-    def __init__(self, logger=None):
+    def __init__(self, logger=None, ac=None):
         try:
             if logger == None:
                logger = log.LogLib()
@@ -23,7 +23,8 @@ class RCLib:
 
             self.master.wait_heartbeat()
 
-            self.ac = ACLib()
+            if ac != None:
+                self.ac = ACLib()
   
 
         except Exception as e:
