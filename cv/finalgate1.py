@@ -4,7 +4,7 @@ import cv2
 import imutils
 import time
 
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture(0)
 
 while(cap.isOpened()):
         
@@ -14,7 +14,6 @@ while(cap.isOpened()):
 
 	height = np.size(frame)
 	width = np.size(frame)
-
 
 	cap_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
@@ -43,7 +42,7 @@ while(cap.isOpened()):
 	gray = cv2.cvtColor(output, cv2.COLOR_BGR2GRAY)
 	gray = cv2.GaussianBlur(gray, (5,5), 0)
 	cv2.imshow("Gray", gray)
-	cv2.waitKey(0)
+	#cv2.waitKey(0)
 
 
 	mask = gray.copy()
@@ -71,7 +70,7 @@ while(cap.isOpened()):
 
 	#detecting and drawing countours
 	#find contours(outlines) of the foreground objects in the thresholded image
-        _, cnts, heirarchy = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL,
+        cnts, heirarchy = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL,
 		cv2.CHAIN_APPROX_SIMPLE)
 	#cv2.drawContours(immat,contours,-1,CV_RGB(255,0,0),2);
 	cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:2]
