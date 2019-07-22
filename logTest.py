@@ -4,11 +4,11 @@ from navigation.cv import *
 import time
 
 log = LogLib()
+log.setLevel(INFO)
 rc = RCLib(log)
-cv = CVThread()
+cv = CVThread(0, log)
 cv.start()
 
-log.setLevel(INFO)
 log.critical("Test error %d" % 10 )
 log.error("Test error %d" % 10 )
 log.warning("Test Warning %d" % 10 )
@@ -16,9 +16,9 @@ log.info("Test info %d" % 10 )
 log.debug("Test debug %d" % 10 )
 
 rc.test()
+cv.test()
 
-log.flush()
-
-time.sleep(60)
-
+time.sleep(6)
 cv.stop()
+time.sleep(1)
+log.flush()

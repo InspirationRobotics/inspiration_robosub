@@ -2,29 +2,60 @@ import numpy as np
 import cv2
 import imutils
 import time
+from log import *
 
 import threading
 
 class CVThread (threading.Thread):
- def __init__(self ):
+ def __init__(self, dump=0, logger=None):
    threading.Thread.__init__(self)
+
+   if logger == None :
+       logger = log.LogLib()
+       
+   self.log = logger
+   
    self._active = 1
+   self.write = dump
 
  def stop(self) :
    self._active = 0
+
+ def test(self) :
+    self.log.warning("test log from cv")
 
  def run(self):            
     cap = cv2.VideoCapture(0)
     width = int(cap.get(3))
     height = int(cap.get(4))
+    out=None
+    if self.write :
+       out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (width,height))
     print 'h' + ' ' + str(height) + ' ' + 'w' + ' ' + str(width)
-
+    self.log.warning("test log from cv")
     cycle = 0
     center_vals = []
     while(cap.isOpened() and (self._active == 1)):
+        time.sleep(0.01)
             
     	ret, frame = cap.read()
-    
+        '''
+        if self.write :
+            timeStamp = str(time.localtime().tm_mon) + '_' + str(time.localtime().tm_mday) \
+             + '_' + str(time.localtime().tm_hour) + '_' + str(time.localtime().tm_min) \
+             + '_' + str(time.localtime().tm_sec) \
+             + '_' + str((int(time.time()*1000))%1000)
+
+            font                   = cv2.FONT_HERSHEY_SIMPLEX
+            bottomLeftCornerOfText = (10,50)
+            fontScale              = 1
+            fontColor              = (0,0,255)
+            lineType               = 2
+            cv2.putText(frame, timeStamp , bottomLeftCornerOfText,
+                        font, fontScale, fontColor, lineType)
+            out.write(frame)
+   
+        '''
     	cap_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     	# lower mask (0-10)
@@ -85,11 +116,11 @@ class CVThread (threading.Thread):
 
         center = str(((x1 + x2) /2) - (width / 2) )
         center_vals.append(center)
-        print center
-        print center_vals
+        self.log.info("Value: %s" % center)
+        self.log.info("Array: %s" % center_vals)
         cycle = cycle + 1
 
-        if cycle > 10 :
+        if cycle > 30 :
             sum_vals = 1
             for x in center_vals :
                 sum_vals = sum_vals + int(x, 10)
@@ -98,8 +129,9 @@ class CVThread (threading.Thread):
             center_vals = []
             cycle = 0
             
-        time.sleep(0.1)
                 
     cap.release()
+    if self.write :
+        out.release()
     cv2.destroyAllWindows()
 
