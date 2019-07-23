@@ -23,8 +23,6 @@ class RCLib:
 
             self.master.wait_heartbeat()
 
-            self.ac = ACLib()
-  
 
         except Exception as e:
             self.log.critical(e)

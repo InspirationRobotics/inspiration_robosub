@@ -19,6 +19,6 @@ rc.test()
 
 log.flush()
 
-time.sleep(60)
+time.sleep(6)
 
 cv.stop()
