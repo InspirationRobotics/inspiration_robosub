@@ -2,14 +2,20 @@
 
 pkill mavproxy
 
-if [ -z $1 ]
-then   echo "Usage: mission_execute [seconds]"
+if [ -z $1 ];
+then   echo "Usage: mission_execute <seconds> <test> [vid]"
        exit
 fi
    
 #python $2 | tee log &
+if [ "x$3" != "x" ] && [ $3 == "vid" ]
+then
+   echo "Starting Video"
+   python videoTimeStamp.py &
+fi
 python $2  &
 
 sleep $1
+pkill -f python
 pkill -f $2
 scripts/motors_kill
