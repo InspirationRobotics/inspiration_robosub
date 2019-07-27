@@ -78,6 +78,10 @@ class RCLib:
     def arm (self) :
     
         self.master.arducopter_arm()
+
+    def disarm (self) :
+
+        self.master.arducopter_arm()
         
     def throttle (self, unit, value, power) :
 	
