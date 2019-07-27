@@ -10,7 +10,7 @@ from log import *
 
 class RCLib:
 
-    def __init__(self, logger=None):
+    def __init__(self, logger=None, ac=None):
         try:
             if logger == None:
                logger = log.LogLib()
@@ -23,6 +23,9 @@ class RCLib:
 
             self.master.wait_heartbeat()
 
+            if ac != None:
+                self.ac = ACLib()
+  
 
         except Exception as e:
             self.log.critical(e)
@@ -74,7 +77,23 @@ class RCLib:
         self.log.critical ('exception in raw')
         raise
 
-            
+    def replay2 (self):
+        table = {}
+        i = 0
+        with open('p1.txt', 'r') as file :
+          for line in file :
+            v = line.split(',')
+            table[i] = v
+            i = i + 1
+        for entry in table:
+            cmds = table[entry]
+            self.master.mav.rc_channels_override_send(
+                self.master.target_system,          
+                self.master.target_component,
+                int(cmds[0]), int(cmds[1]), int(cmds[2]), int(cmds[3]), int(cmds[4]), int(cmds[5]), int(cmds[6]), int(cmds[7]))
+            #print int(cmds[0]), int(cmds[1]), int(cmds[2]), int(cmds[3]), int(cmds[4]), int(cmds[5]), int(cmds[6]), int(cmds[7])
+            time.sleep(0.5)
+
     def arm (self) :
     
         self.master.arducopter_arm()
