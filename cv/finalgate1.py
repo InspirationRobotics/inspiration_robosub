@@ -4,11 +4,12 @@ import cv2
 import imutils
 
 #cap = cv2.VideoCapture('gateC.mp4')
-cap = cv2.VideoCapture('high_light_close.mp4')
+#cap = cv2.VideoCapture('high_light_close.mp4')
+cap = cv2.VideoCapture(0)
 
 i=0
 
-while(cap.isOpened()):
+while(True):
 	ret, frame = cap.read()
 
 	print(i)
