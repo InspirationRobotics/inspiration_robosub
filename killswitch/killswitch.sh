@@ -14,6 +14,9 @@ do
 	
 	pkill python
 	./motors_kill
+        echo "killed"
 	
     fi
+    sleep 0.050
+    
 done    

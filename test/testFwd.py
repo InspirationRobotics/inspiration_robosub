@@ -14,5 +14,5 @@ rc.arm()
 
 rc.throttle("time", 1, -0.25)
 
-rc.forward("time", 3, 0.35)
+rc.forward("time", 5, 1)
 log.flush()
