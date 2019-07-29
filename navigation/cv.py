@@ -21,7 +21,11 @@ class CVThread (threading.Thread):
 
     while(cap.isOpened() and (self._active == 1)):
             
-    	ret, frame = cap.read()
+    	ret, frame1 = cap.read()
+
+        mat = cv2.cvtColor(frame1, cv2.IMREAD_COLOR)
+        
+        frame = cv2.UMat(mat)
     
     	cap_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
@@ -34,7 +38,8 @@ class CVThread (threading.Thread):
     	upper_red = np.array([185,255,255])
     	mask1 = cv2.inRange(cap_hsv, lower_red, upper_red)
     	# join my masks
-    	mask = mask0 + mask1
+    	#mask = mask0 + mask1
+    	mask = mask0
     
     	output = cv2.bitwise_and(frame, frame, mask = mask)
     
@@ -42,12 +47,14 @@ class CVThread (threading.Thread):
     	gray = cv2.cvtColor(output, cv2.COLOR_BGR2GRAY)
     	gray = cv2.GaussianBlur(gray, (5,5), 0)
     
-    	mask = gray.copy()
+    	#mask = gray.copy()
+    	mask = gray
     	kernel = np.ones((5,5),np.uint8)
     	eroded = cv2.erode(mask, kernel, iterations=4)
     
     	#Erosions and dilations
-    	mask = gray.copy()
+    	#mask = gray.copy()
+    	mask = gray
     	kernel = np.ones((5,5),np.uint8)
     	dilated = cv2.dilate(eroded, kernel, iterations=3)
     
@@ -56,7 +63,7 @@ class CVThread (threading.Thread):
     	edged = cv2.Canny(dilated, 30,150)
     
     	#detecting and drawing countours
-        cnts, heirarchy = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL,
+        cnts, heirarchy = cv2.findContours(edged, cv2.RETR_EXTERNAL,
     		cv2.CHAIN_APPROX_SIMPLE)
     	cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:2]
     

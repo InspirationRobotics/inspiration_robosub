@@ -342,3 +342,10 @@ class RCLib:
 
     def test(self):
         self.log.info('Test from RC')
+
+    def gateAlgin (self) :
+
+        x1 = 0
+        x2 = 0
+        y1 = 0
+        y2 = 0
