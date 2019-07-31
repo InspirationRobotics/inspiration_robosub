@@ -9,34 +9,38 @@ class CVThread (threading.Thread):
  def __init__(self ):
    threading.Thread.__init__(self)
    self._active = 1
-   self._cvOut = {}
-
+   self._cvOut = [[[0, 0], [0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0], [0, 0], [0, 0]]]
+   
  def stop(self) :
    self._active = 0
 
  def getCVOut(self) :
-   return self._cvOut
+   try:
+       return self._cvOut
+   except:
+       print("no coordinates were found")
 
- def run(self):           
+ def run(self):
+
      video = cv2.VideoCapture('gateC.mp4')
      width = int(video.get(4))
      height = int(video.get(3))
 
      # Downscale the image to a reasonable size to reduce compute
-     #scale = 0.5
-     
-     dim = (int(height), int(width))
+     scale = 0.5 
+     dim = (int(height*scale), int(width*scale))
      
      # Minimize false detects by eliminating contours less than a percentage of the image
      area_threshold = 10
 
      print 'h' + ' ' + str(height) + ' ' + 'w' + ' ' + str(width)
-     print("test2")
+     
      while(self._active):
+      
         ret, orig_frame = video.read()
         if not ret:
             break
-        print("test3")
+        
         orig_frame = cv2.resize(orig_frame, dim, interpolation = cv2.INTER_AREA)
         frame = cv2.GaussianBlur(orig_frame, (5, 5), 0)
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -63,7 +67,7 @@ class CVThread (threading.Thread):
         if len(cnts) > 0:
 
                 M = cv2.moments(cnts[0])
-                i =0
+                i = 0
                 for c in cnts:
                         rect = cv2.minAreaRect(c)
                         #print("rect: {}".format(rect))
@@ -79,21 +83,51 @@ class CVThread (threading.Thread):
 
                         #boundingBoxes = np.append(boundingBoxes, np.array([[x,y,x+w,y+h]]), axis = 0)
                         #cv2.rectangle(orig_frame,(x,y), (x+w, y+h), (255,0,0), 2)
-                        cv2.imshow("bounding rectangle",orig_frame)
-                        print("test")
+                        #cv2.imshow("bounding rectangle",orig_frame)
+                        
                         #print(str(x/width) + " " + str(y/height) + " " + str((x+w)/width) + " " +  str((y+h)/height))
 
-                        print(box)
-                        self._cvOut[i]=box
-                        i = i+1
+                        #print(box)
 
+                        if i == 0 :
+                            self._cvOut[i]=box
+
+                        if i == 1 :
+                            if box[0][0] > self._cvOut[0][0][0] :
+                                self._cvOut[i]=box
+                            else :
+                                self._cvOut[i]=self._cvOut[i-1]
+                                self._cvOut[i-1]=box
+
+                        if i == 2 :
+                            if box[0][0] > self._cvOut[1][0][0] :
+                                self._cvOut[i]=box
+                            elif box[0][0] < self._cvOut[0][0][0] :
+                                self._cvOut[i]=self._cvOut[i-1]
+                                self._cvOut[i-1]=self._cvOut[i-2]
+                                self._cvOut[i-2]=box
+                            else :
+                                self._cvOut[i]=self._cvOut[i-1]
+                                self._cvOut[i-1]=box
+                        
+                        '''
+                        if i == 0 :
+
+                            self.cvOut[i]=box
+                        if i == 1 :
+
+                            if box[0][0] < self._cvOut[0][0][0]:
+                            self._cvOut[i]=box
+                        '''
+                        i = i+1
+                        
                         '''if M["m00"] != 0:
                                 cX = int(M["m10"] / M["m00"])
                                 cY = int(M["m01"] / M["m00"])
                         else:
                                 cX, cY = 0,0
                         print(cX/width, cY/height)'''
-
+                
         key = cv2.waitKey(1)
         if key == 27:
             break
