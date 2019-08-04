@@ -26,6 +26,23 @@ def getDeg(master) :
             print(e)
             pass
 
+def getAlt(master) :
+    while True:
+        try:
+            ret = master.recv_match(type='VFR_HUD', blocking=True)
+            if (ret != None ):
+               gp_val = ret.to_dict() 
+               alt = (gp_val['alt'])
+            #else:
+               #alt = 0
+            
+            return(alt)
+
+        except Exception as e:
+            print(e)
+            pass
+
+
 
 def getAllData(master) :
     while True:

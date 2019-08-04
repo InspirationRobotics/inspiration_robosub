@@ -26,5 +26,5 @@ class ACLib:
        return [self._pinger3.get_distance()["distance"], self._pinger3.get_distance()["confidence"]]
     def get_distance_right(self):
        return [self._pinger1.get_distance()["distance"], self._pinger1.get_distance()["confidence"]]
-    def get_distance_forward(self):
+    def get_distance_fwd(self):
        return [self._pinger2.get_distance()["distance"], self._pinger2.get_distance()["confidence"]]

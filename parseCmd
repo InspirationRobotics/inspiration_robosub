@@ -1,0 +1,2 @@
+mavlogdump.py $1 --types=RC_CHANNELS_RAW --robust > $2 
+cat $2 | awk {'print $12 $15 $18 $21 $24 $27 $30 $33'} > $3

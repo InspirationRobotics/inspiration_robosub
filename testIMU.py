@@ -5,12 +5,14 @@ import navigation.imu as imu
 
 rc = RCLib()
 
-rc.setmode('MANUAL')
+rc.setmode('AUTO')
 
 rc.arm()
 
 while (True) :
    try:
-      rc.getDeg()
+      #print rc.getDeg()
+      print rc.getAlt()
+      time.sleep(0.01)
    except:
-      print('in loop')
+       print('exception in loop')

@@ -3,7 +3,7 @@ import time
 import imu
 from pymavlink import mavutil
 import math
-from ac import *
+import depth
 
 # Create the connection
 
@@ -18,11 +18,14 @@ class RCLib:
 
             self.master.wait_heartbeat()
 
-            self.ac = ACLib()
 
         except Exception as e:
             print(e)
-        
+
+    def getDev (self) :
+
+        return self.master
+    
     # This function is responsible for sending RC channel overrides
     def set_rc_channel_pwm(self, id, pwm=1500):
         
@@ -74,6 +77,10 @@ class RCLib:
     def arm (self) :
     
         self.master.arducopter_arm()
+
+    def disarm (self) :
+
+        self.master.arducopter_disarm()
         
     def throttle (self, unit, value, power) :
 	
@@ -85,7 +92,7 @@ class RCLib:
 	    while runtime > time.time() :
 	        self.raw("throttle", pwm)
             self.raw("throttle", 1500)
-
+    
     def forwardAngle (self, unit, value, power, angle) :
         
 	if unit == "time" :
@@ -203,10 +210,11 @@ class RCLib:
             print('Actual End angle: %s' % imu.getDeg(self.master))
 
     def getDeg (self) :
-        r = imu.getDeg(self.master)
-        #print(r)
         return imu.getDeg(self.master) 
                   
+    def getAlt (self) :
+        return imu.getAlt(self.master)
+
     def lateral (self, unit, value, power) :
 
         if unit == "time" :

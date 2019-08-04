@@ -1,0 +1,6 @@
+while :
+do
+
+    cat /sys/class/gpio/gpio20/value
+
+done

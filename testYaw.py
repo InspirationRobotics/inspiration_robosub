@@ -10,10 +10,12 @@ rc.setmode('ALT_HOLD')
 rc.arm()
 
 rc.throttle("time", 1, -0.5)
-
+i = 180
 start = rc.getDeg()
-rc.imu_turn(start+90)
-
+while True:
+    
+    rc.imu_turn(start+i)
+    i = i + 180
 
 #i=0
 #while (i<50) :
